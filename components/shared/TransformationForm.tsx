@@ -1,5 +1,6 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useState } from 'react';
@@ -16,7 +17,9 @@ import {
 } from '@/components/ui/form';
 
 import { Input } from '@/components/ui/input';
-import { defaultValues } from '@/constants';
+import { defaultValues, transformationTypes } from '@/constants';
+import { CustomField } from './CustomField';
+
 
 export const formSchema = z.object({
     title: z.string(),
@@ -27,7 +30,7 @@ export const formSchema = z.object({
 })
 
 const TransformationForm = ({ action, data=null, userId, type, creditBalance }: TransformationFormProps) => {
-    const transformationType = transformatoinTypes[types];
+    const transformationType = transformationTypes[type];
     const [image, setImage] = useState(data);
     const [newTransformation, setNewTransformation] = useState<Transformations | null>(null)
 
