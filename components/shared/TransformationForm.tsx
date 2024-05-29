@@ -64,6 +64,8 @@ const TransformationForm = ({ action, data=null, userId, type, creditBalance }: 
             className='input-field' />}
             />
         </form>
+
+        <Button type="submit">Submit</Button>
     </Form>
   )
 }
