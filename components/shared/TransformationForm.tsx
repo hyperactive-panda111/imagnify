@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 
 import {
     Select,
@@ -28,7 +28,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { aspectRatioOptions, defaultValues, transformationTypes } from '@/constants';
 import { CustomField } from './CustomField';
-import { AspectRatioKey } from '@/lib/utils';
+import { AspectRatioKey, debounce, deepMergeObjects } from '@/lib/utils';
+import MediaUploader from './MediaUploader';
 
 
 export const formSchema = z.object({
@@ -39,12 +40,15 @@ export const formSchema = z.object({
     publicId: z.string(),
 })
 
-const TransformationForm = ({ action, data = null, userId, type, creditBalance }: TransformationFormProps) => {
+const TransformationForm = ({ action, data = null, userId, type, creditBalance, config = null }: TransformationFormProps) => {
     const transformationType = transformationTypes[type];
     const [image, setImage] = useState(data);
     const [newTransformation, setNewTransformation] = useState<Transformations | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isTransforming, setIsTransforming] = useState(false);
+    const [transformationConfig, setTransformationConfig] = useState(config);
+    const [isPending, startTransition] = useTransition();
+
 
     const initalValues = data && action === 'Update' ? {
         title: data?.title,
@@ -53,6 +57,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance }
         prompt: data?.prompt,
         publicId: data?.publicId,
     } : defaultValues
+    
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -66,15 +71,52 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance }
 
     const onSelectFieldHandler = (value: string, 
         onChangeField: (value: string) => void) => {
+          const imageSize = aspectRatioOptions[value as AspectRatioKey];
 
+          setImage((prevState: any) => ({
+            ...prevState,
+            aspectRatio: imageSize.aspectRatio,
+            label: imageSize.label,
+            height: imageSize.height,
+            width: imageSize.width,
+          }))
+
+          setNewTransformation(transformationType.config);
+
+          return onChangeField(value);
         };
+
 
     const onInputChangeHandler = (fieldName: string, value: string, 
         type: string, onChangeField: (value: string) => void) => {
+          debounce(() => {
+            setNewTransformation((prevState: any) => ({
+              ...prevState,
+              [type]: {
+                ...prevState?.[type],
+                [fieldName === 'prompt' ? 'prompt' : 'to']:
+                value
+              }
+            }))
 
+            return onChangeField(value);
+          }, 1000);
         };
+    
+    // TODO: Return to updateCredits
+    const onTransformHandler = async () => {
+      setIsTransforming(true);
 
-        const onTransformHandler = () => {};
+      setTransformationConfig(
+        deepMergeObjects(newTransformation, transformationConfig)
+      );
+
+      setNewTransformation(null);
+
+      startTransition(async () => {
+        // await updateCredits(userId, creditFee)
+      })
+    };
 
   return (
    
@@ -158,6 +200,23 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance }
              )} 
         </div>
        )}
+
+       <div className='media-uploader-field'>
+        <CustomField
+        control={form.control}
+        name='publicId'
+        className='flex size-full flex-col'
+        render={({ field }) => (
+          <MediaUploader
+            onValueChange={field.onChange}
+            setImage={setImage}
+            publicId={field.value}
+            image={image}
+            type={type}
+            />
+        )}
+        />
+       </div>
 
        <div className='flex flex-col gap-4'>
        <Button
