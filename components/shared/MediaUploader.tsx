@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useToast } from '../ui/use-toast';
 import { CldUploadWidget } from 'next-cloudinary';
 
@@ -55,10 +56,20 @@ const MediaUploader = ({
                     HERE IS THE IMAGE
                     </>
                 ) : (
-                    <div>
-                        HERE IS NO IMAGE
-                    </div>
-                )}
+                    <div className='media-uploader_cta'
+                    onClick={() => open()}>
+                        <div className='media-uploader_cta-image'>
+                            <Image 
+                              src='/assets/icons/add.svg'
+                              alt='Add Image'
+                              width={24}
+                              height={24}
+                            />
+                            </div>
+                            <p className='p-14-medium'>Click here
+                            to upload image</p>
+                        </div>
+                    )}
             </div>
         )}
     </CldUploadWidget>
