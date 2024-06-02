@@ -1,4 +1,4 @@
-import { Collection } from '@/components/shared/Collection
+import { Collection } from '@/components/shared/Collection'
 import { navLinks } from '@/constants'
 import { UserButton } from '@clerk/nextjs'
 import Image from 'next/image'
