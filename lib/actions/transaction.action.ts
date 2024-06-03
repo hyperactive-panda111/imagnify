@@ -5,6 +5,7 @@ import Stripe from 'stripe';
 import { connectToDatabase } from '../database/mongoose';
 import Transaction from '../database/models/transaction.model';
 import { updateCredits } from './user.actions';
+import { handleError } from '../utils';
 
 export async function checkoutCredits(transaction: CheckoutTransactionParams) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -21,7 +22,7 @@ export async function checkoutCredits(transaction: CheckoutTransactionParams) {
                         name: transaction.plan,
                     }
                 },
-                quantity: 1,
+                quantity: 1
 
             }
         ],
@@ -31,8 +32,8 @@ export async function checkoutCredits(transaction: CheckoutTransactionParams) {
             buyerId: transaction.buyerId,
         },
         mode: 'payment',
-        success_url: `${process.env.NEXT_PUBLIC_SERVER}/profile`,
-        cancel_url: `${process.env.NEXT_PUBLIC_SERVER}/`,
+        success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/profile`,
+        cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/`,
 })
 
 redirect(session.url!)
@@ -53,6 +54,6 @@ export async function createTransaction(transaction: CreateTransactionParams) {
 
         return JSON.parse(JSON.stringify(newTransaction));
     } catch (error) {
-        
+        handleError(error)
     }
 }
