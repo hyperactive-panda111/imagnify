@@ -28,7 +28,7 @@ export async function addImage({ userId, image, path }: AddImageParams) {
 
         revalidatePath(path);
 
-        return JSON.parse(JSON.stringify(image));
+        return JSON.parse(JSON.stringify(newImage));
     } catch (error) {
         handleError(error);
     }
