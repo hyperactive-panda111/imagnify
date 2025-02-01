@@ -20,8 +20,6 @@ An AI image SaaS platform that excels in image processing capabilities, integrat
 - Generative filling
 - Background removal
 
-This project can be a guide for your next AI image tool and a boost to your portfolio.
-
 ## ⚙️ Tech Stack
 
 ### Frontend
